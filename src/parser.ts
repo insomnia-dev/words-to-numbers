@@ -1,5 +1,4 @@
 import {
-  BLACKLIST_SINGULAR_WORDS,
   DECIMALS,
   JOINERS,
   MAGNITUDE_KEYS,
@@ -10,10 +9,11 @@ import {
   UNIT_KEYS,
 } from "./constants";
 import fuzzyMatch from "./fuzzy-match";
-import { TokenType } from "./types";
 import type { Region, SubRegion, Token, WordsToNumbersOptions } from "./types";
+import { TokenType } from "./types";
+import { checkBlacklist } from "./util";
 
-enum Action {
+const enum Action {
   SKIP,
   ADD,
   START_NEW_REGION,
@@ -270,10 +270,6 @@ const checkIfTokenFitsRegion = (
   return Action.NOPE;
 };
 
-const checkBlacklist = (tokens: Token[]): boolean =>
-  tokens.length === 1 &&
-  BLACKLIST_SINGULAR_WORDS.includes(tokens[0].lowerCaseValue);
-
 const matchRegions = (
   tokens: Token[],
   options: WordsToNumbersOptions
@@ -355,29 +351,31 @@ const getTokenType = (chunk: string): TokenType | undefined => {
 };
 
 const parser = (text: string, options: WordsToNumbersOptions): Region[] => {
-  const tokens = text
+  const splitText = text
+    // Split all words, spaces, and punctuation
     .split(/(\w+|\s|[[:punct:]])/i)
-    .reduce<Token[]>((acc, chunk) => {
-      const unfuzzyChunk =
-        chunk.length && options.fuzzy && !PUNCTUATION.includes(chunk)
-          ? fuzzyMatch(chunk)
-          : chunk;
+    // Filter out the empty strings that separate the words
+    .filter(Boolean);
 
-      const start = acc.length ? acc[acc.length - 1].end + 1 : 0;
-      const end = start + chunk.length;
+  const tokens = splitText.reduce<Token[]>((acc, chunk) => {
+    const unfuzzyChunk =
+      !!options.fuzzy && !PUNCTUATION.includes(chunk)
+        ? fuzzyMatch(chunk)
+        : chunk;
 
-      if (end !== start) {
-        acc.push({
-          start,
-          end: end - 1,
-          value: unfuzzyChunk,
-          lowerCaseValue: unfuzzyChunk.toLowerCase(),
-          type: getTokenType(unfuzzyChunk),
-        });
-      }
+    const start = acc.length ? acc[acc.length - 1].end + 1 : 0;
+    const end = start + chunk.length - 1;
 
-      return acc;
-    }, []);
+    acc.push({
+      start,
+      end,
+      value: unfuzzyChunk,
+      lowerCaseValue: unfuzzyChunk.toLowerCase(),
+      type: getTokenType(unfuzzyChunk),
+    });
+
+    return acc;
+  }, []);
 
   const regions = matchRegions(tokens, options);
 

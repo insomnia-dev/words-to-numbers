@@ -1,38 +1,7 @@
 import { expect, it } from "vitest";
 import wtn from "./index";
 
-/**
- * Extra tests for reported issues
- */
-
-// it("thirty five thousand", () => {
-//   expect(wtn("thirty five thousand")).to.equal(35000);
-// });
-
-// it("one hundred and fifty thousand dollars", () => {
-//   expect(wtn("one hundred and fifty thousand dollars")).to.equal(150000);
-// });
-
-// it("twenty-one thousand five hundred seventy-six", () => {
-//   expect(wtn("twenty-one thousand five hundred seventy-six")).to.equal(21576);
-// });
-
-// it("a crab cake", () => {
-//   expect(wtn("a crab cake")).to.equal("a crab cake");
-// });
-
-/**
- * Failed after conversion to TypeScript (without any other changes)
- *
- * - Expected: `3000726`
- * - Received: `2.0000000000000004e+22`
- */
-
-// it("tree millyon sefen hunderd ant twinty sex", () => {
-//   expect(
-//     wtn("tree millyon sefen hunderd and twinty sex", { fuzzy: true })
-//   ).to.equal(3000726);
-// });
+// TODO: Fix the following failing tests
 
 /**
  * Original tests that were already failing
@@ -53,6 +22,62 @@ import wtn from "./index";
 // it('one hundred and two thousand', () => {
 //   expect(wtn('one hundred and two thousand')).to.eq(102000);
 // });
+
+/**
+ * Extra tests for reported issues
+ */
+
+// it("thirty five thousand", () => {
+//   expect(wtn("thirty five thousand")).to.equal(35000);
+// });
+
+// it("one hundred and fifty thousand dollars", () => {
+//   expect(wtn("one hundred and fifty thousand dollars")).to.equal(150000);
+// });
+
+// it("twenty-one thousand five hundred seventy-six", () => {
+//   expect(wtn("twenty-one thousand five hundred seventy-six")).to.equal(21576);
+// });
+
+/**
+ * Failed after conversion to TypeScript (without any other changes)
+ *
+ * - Expected: `3000726`
+ * - Received: `2.0000000000000004e+22`
+ */
+
+// it("tree millyon sefen hunderd ant twinty sex", () => {
+//   expect(
+//     wtn("tree millyon sefen hunderd and twinty sex", { fuzzy: true })
+//   ).to.equal(3000726);
+// });
+
+/**
+ * Tests after adding support for blacklisting a single `a` region.
+ *
+ * @see {@link https://github.com/finnfiddle/words-to-numbers/issues/30}
+ * @see {@link https://github.com/finnfiddle/words-to-numbers/issues/36}
+ */
+
+it("a", () => {
+  expect(wtn("a")).to.equal("a");
+});
+
+it("A", () => {
+  expect(wtn("A")).to.equal("A");
+});
+
+it("A crab cake", () => {
+  expect(wtn("A crab cake")).to.equal("A crab cake");
+});
+
+it("A cat and a mouse", () => {
+  expect(wtn("A cat and a mouse")).to.equal("A cat and a mouse");
+});
+
+it("A hundred cats and dogs", () => {
+  expect(wtn("A hundred cats and dogs")).to.equal("100 cats and dogs");
+});
 
 /**
  * Original tests
@@ -254,10 +279,6 @@ it("xxxxxxx one hundred", () => {
 
 it("and", () => {
   expect(wtn("and")).to.equal("and");
-});
-
-it("a", () => {
-  expect(wtn("a")).to.equal("a");
 });
 
 it("junkvalue", () => {

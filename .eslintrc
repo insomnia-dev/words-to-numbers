@@ -35,6 +35,24 @@
     "deprecation/deprecation": "warn",
     "no-console": "error",
     "no-param-reassign": "error",
+    "no-use-before-define": "error",
+    "import/order": [
+      "error",
+      {
+        "named": true,
+        "alphabetize": {
+          "order": "asc"
+        },
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "sibling",
+          "parent",
+          "index"
+        ]
+      }
+    ],
     "tsdoc/syntax": "warn",
     "@typescript-eslint/consistent-type-imports": [
       "warn",

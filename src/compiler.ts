@@ -1,6 +1,7 @@
 import { NUMBER } from "./constants";
-import { TokenType, type Region, type SubRegion } from "./types";
-import { splice } from "./util";
+import type { Region, SubRegion } from "./types";
+import { TokenType } from "./types";
+import { checkBlacklist, splice } from "./util";
 
 const getNumber = (region: Region): number => {
   let sum = 0;
@@ -99,10 +100,12 @@ const replaceRegionsInText = (regions: Region[], text: string): string => {
   let replaced = text;
   let offset = 0;
   regions.forEach((region) => {
-    const length = region.end - region.start + 1;
-    const replaceWith = getNumber(region).toString();
-    replaced = splice(replaced, region.start + offset, length, replaceWith);
-    offset -= length - replaceWith.length;
+    if (!checkBlacklist(region.tokens)) {
+      const length = region.end - region.start + 1;
+      const replaceWith = getNumber(region).toString();
+      replaced = splice(replaced, region.start + offset, length, replaceWith);
+      offset -= length - replaceWith.length;
+    }
   });
   return replaced;
 };
@@ -113,6 +116,7 @@ interface CompilerParams {
 }
 
 const compiler = ({ regions, text }: CompilerParams): string | number => {
+  // If the entire string represents a number, return the number's value
   if (regions[0].end - regions[0].start === text.length - 1) {
     return getNumber(regions[0]);
   }
